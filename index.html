@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-background">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KRNLSec — Learn Cybersecurity From Industry Professionals</title>
+  <meta name="description" content="KRNLSec is a premium online academy offering practical cybersecurity courses in ethical hacking, networking, Linux, web security and more. Build real-world skills through structured lessons." />
+  <meta name="theme-color" content="#090909" />
+  <meta property="og:title" content="KRNLSec — Premium Cybersecurity Academy" />
+  <meta property="og:description" content="Practical cybersecurity education for beginners and professionals." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="site-nav"></div>
+
+  <main>
+    <!-- ============================ HERO ============================ -->
+    <section class="hero">
+      <div class="hero-bg">
+        <div class="blob b1"></div>
+        <div class="blob b2"></div>
+        <div class="blob b3"></div>
+      </div>
+      <div class="grid-overlay"></div>
+      <div class="shape s1"></div>
+      <div class="shape s2"></div>
+      <div class="shape s3"></div>
+      <div class="shape s4"></div>
+
+      <div class="container hero-inner">
+        <span class="badge reveal">Trusted by 90,000+ learners worldwide</span>
+        <h1 class="reveal">Learn Cybersecurity From <span class="grad">Industry Professionals</span></h1>
+        <p class="reveal">Practical cybersecurity education designed to help beginners and professionals build real-world skills through structured courses.</p>
+        <div class="hero-cta reveal">
+          <a href="courses.html" class="btn btn-primary btn-lg">Browse Courses</a>
+          <a href="register.html" class="btn btn-ghost btn-lg">Get Started</a>
+        </div>
+        <div class="hero-stats reveal">
+          <div class="stat"><b data-count="120" data-suffix="+">0</b><span>Expert-led courses</span></div>
+          <div class="stat"><b data-count="90000" data-suffix="+">0</b><span>Active students</span></div>
+          <div class="stat"><b data-count="4.9">0</b><span>Average rating</span></div>
+          <div class="stat"><b data-count="98" data-suffix="%">0</b><span>Completion rate</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= WHY CHOOSE ========================= -->
+    <section class="section" id="why">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Why KRNLSec</span>
+          <h2>Everything you need to master security</h2>
+          <p>A learning experience engineered for real outcomes, not just certificates.</p>
+        </div>
+        <div class="features-grid" id="featuresGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===================== FEATURED COURSES ===================== -->
+    <section class="section" id="featured" style="padding-top:0">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Featured</span>
+          <h2>Popular cybersecurity courses</h2>
+          <p>Hand-picked courses covering the skills employers are hiring for right now.</p>
+        </div>
+        <div class="courses-grid" id="featuredCourses"></div>
+        <div style="text-align:center;margin-top:44px" class="reveal">
+          <a href="courses.html" class="btn btn-outline btn-lg">View all courses</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================== PRICING ========================= -->
+    <section class="section" id="pricing" style="padding-top:0">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Pricing</span>
+          <h2>Simple, transparent plans</h2>
+          <p>Choose the plan that fits your goals. Upgrade or cancel anytime.</p>
+        </div>
+        <div class="pricing-grid" id="pricingGrid"></div>
+      </div>
+    </section>
+
+    <!-- ======================= TESTIMONIALS ======================= -->
+    <section class="section" id="reviews" style="padding-top:0">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Student Reviews</span>
+          <h2>Loved by security learners</h2>
+          <p>Real feedback from students building real careers.</p>
+        </div>
+        <div class="testimonials-grid" id="reviewsGrid"></div>
+      </div>
+    </section>
+
+    <!-- ========================== CTA ============================= -->
+    <section class="section" style="padding-top:0">
+      <div class="container">
+        <div class="cta-band reveal">
+          <div class="grid-overlay"></div>
+          <h2>Start building real security skills today</h2>
+          <p>Join thousands of learners and get lifetime access to premium, practical cybersecurity training.</p>
+          <div class="hero-cta">
+            <a href="register.html" class="btn btn-primary btn-lg">Create Free Account</a>
+            <a href="courses.html" class="btn btn-ghost btn-lg">Explore Courses</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="js/whop-config.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    (function () {
+      const { icon, catalogue, courseCard, reviews, $ } = window.KRNL;
+
+      /* ---- Feature cards ---- */
+      const features = [
+        ["target", "Beginner Friendly", "Start with zero experience. Every course assumes nothing and builds you up."],
+        ["layers", "Step-by-Step Learning", "Structured paths take you from fundamentals to advanced, real-world skills."],
+        ["award", "Lifetime Course Access", "Buy once and keep access forever, including all future course updates."],
+        ["globe", "Watch Anywhere", "Learn on desktop, tablet or mobile with a responsive, distraction-free player."],
+        ["refresh", "Regular Course Updates", "Content is refreshed to keep pace with the fast-moving security landscape."],
+        ["users", "Expert Instructors", "Learn from professionals with years of hands-on offensive and defensive experience."],
+        ["video", "High Quality Video Lessons", "Crisp, clearly narrated lessons with practical, follow-along demonstrations."],
+        ["zap", "Practical Examples", "Real tools, real targets and real techniques you can apply immediately."],
+        ["heart", "Community Support", "Join a supportive community of learners and mentors to help you grow."],
+      ];
+      $("#featuresGrid").innerHTML = features
+        .map(
+          ([ic, title, desc]) => `
+        <div class="feature glass reveal">
+          <div class="icon">${icon(ic)}</div>
+          <h3>${title}</h3>
+          <p>${desc}</p>
+        </div>`
+        )
+        .join("");
+
+      /* ---- Featured courses ---- */
+      const featured = [...catalogue].sort((a, b) => b.students - a.students).slice(0, 6);
+      $("#featuredCourses").innerHTML = featured.map(courseCard).join("");
+
+      /* ---- Pricing — single course ---- */
+      const courseFeats = [
+        "30 HD video lessons across 6 sections",
+        "Networking, Linux, Ethical Hacking, Web Security & more",
+        "Hands-on labs with Kali, Nmap, Burp Suite",
+        "Lifetime access including all future updates",
+        "PDF Certificate of Completion",
+        "Watch on any device",
+      ];
+      $("#pricingGrid").innerHTML = `
+        <div class="plan glass reveal featured" style="max-width:520px; margin:0 auto">
+          <h3>Zero to Hero in Cybersecurity</h3>
+          <p class="plan-desc">The complete beginner-to-professional cybersecurity course. One payment, lifetime access.</p>
+          <div class="plan-price">$10<span> one-time</span></div>
+          <ul class="plan-features">
+            ${courseFeats.map(f => `<li>${icon("check")}<span>${f}</span></li>`).join("")}
+          </ul>
+          <a href="#" data-buy="z2h" class="btn btn-primary btn-block">Enroll Now — $10</a>
+        </div>`;
+
+
+      /* ---- Reviews ---- */
+      $("#reviewsGrid").innerHTML = reviews
+        .slice(0, 6)
+        .map(([name, role, stars, text]) => `
+        <div class="testimonial glass reveal">
+          <div class="stars">${icon("star").repeat(stars)}</div>
+          <p>"${text}"</p>
+          <div class="who">
+            <div class="avatar">${name.split(" ").map((n) => n[0]).join("")}</div>
+            <div><b>${name}</b><span>${role}</span></div>
+          </div>
+        </div>`)
+        .join("");
+
+      window.KRNL.refresh();
+    })();
+  </script>
+</body>
+</html>

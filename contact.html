@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-background">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us — KRNLSec</title>
+  <meta name="description" content="Reach out to KRNLSec support, request details on team licensing, ask about Enterprise plans, or contact security instructors." />
+  <meta name="theme-color" content="#090909" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body>
+  <div id="site-nav"></div>
+
+  <main>
+    <!-- ========================== HERO ========================== -->
+    <section class="page-head">
+      <div class="container">
+        <div class="breadcrumb" aria-label="Breadcrumb">
+          <a href="index.html">Home</a><span>/</span>
+          <span style="color:var(--text-muted)">Contact</span>
+        </div>
+        <span class="eyebrow text-primary">Get In Touch</span>
+        <h1>How can we help?</h1>
+        <p>Whether you require assistance resolving a billing question, exploring enterprise team options, or asking our course instructors a technical question, we are here for you.</p>
+      </div>
+    </section>
+
+    <!-- ========================== CONTENT ======================= -->
+    <section class="section" style="padding-top:40px">
+      <div class="container">
+        <div class="contact-layout">
+          <!-- Contact Info -->
+          <div>
+            <div class="contact-info-card glass reveal">
+              <div class="icon" id="emailIcon"></div>
+              <div>
+                <h4>General Support & Sales</h4>
+                <p>Have questions about plans, courses, or billing? Reach out to support.</p>
+                <p style="margin-top:6px; font-weight:600; color:var(--primary)"><a href="mailto:support@krnlsec.io">support@krnlsec.io</a></p>
+              </div>
+            </div>
+
+            <div class="contact-info-card glass reveal">
+              <div class="icon" id="businessIcon"></div>
+              <div>
+                <h4>Business & Team Licensing</h4>
+                <p>Looking to set up corporate accounts or configure custom Whop plans for your team?</p>
+                <p style="margin-top:6px; font-weight:600; color:var(--primary)"><a href="mailto:hello@krnlsec.io">hello@krnlsec.io</a></p>
+              </div>
+            </div>
+
+            <div class="contact-info-card glass reveal">
+              <div class="icon" id="locationIcon"></div>
+              <div>
+                <h4>Secure Community</h4>
+                <p>Join our Discord server to connect with students, tutors and share cybersecurity updates.</p>
+                <p style="margin-top:6px; font-weight:600; color:var(--primary)"><a href="#" id="discLink">Open Discord Server</a></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Form -->
+          <div class="contact-form glass reveal" style="padding: 32px; border-radius: var(--radius)">
+            <h3 style="margin-bottom:8px">Send us a message</h3>
+            <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:20px">We typically respond within 12-24 business hours.</p>
+            
+            <form id="contactMsgForm" novalidate>
+              <div class="field" id="f-name">
+                <label for="name">Your Name</label>
+                <div class="control"><input type="text" id="name" required placeholder="Jane Doe" /></div>
+              </div>
+
+              <div class="field" id="f-email">
+                <label for="email">Email Address</label>
+                <div class="control"><input type="email" id="email" required placeholder="you@domain.com" /></div>
+              </div>
+
+              <div class="field" id="f-subject">
+                <label for="subject">Subject</label>
+                <div class="control"><input type="text" id="subject" required placeholder="Question about Ethical Hacking course" /></div>
+              </div>
+
+              <div class="field" id="f-message">
+                <label for="message">Your Message</label>
+                <div class="control">
+                  <textarea id="message" required placeholder="How can our instructors help you?"></textarea>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block btn-lg" id="submitBtn" style="margin-top:16px">Send Message</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="js/app.js"></script>
+  <script>
+    (function () {
+      const { icon, toast, $ } = window.KRNL;
+
+      // Inject svg icons
+      $("#emailIcon").innerHTML = icon("mail");
+      $("#businessIcon").innerHTML = icon("users");
+      $("#locationIcon").innerHTML = icon("discord");
+      $("#discLink").prepend(icon("discord"));
+
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const form = $("#contactMsgForm");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const name = $("#name").value.trim();
+        const email = $("#email").value.trim();
+        const msg = $("#message").value.trim();
+
+        if (!name || !emailRe.test(email) || !msg) {
+          toast("Please fill in all details with a valid email.", "info");
+          return;
+        }
+
+        const btn = $("#submitBtn");
+        btn.disabled = true;
+        btn.textContent = "Sending message...";
+
+        setTimeout(() => {
+          toast("Message sent successfully! We'll reply soon.", "success");
+          form.reset();
+          btn.disabled = false;
+          btn.textContent = "Send Message";
+        }, 1200);
+      });
+
+      window.KRNL.refresh();
+    })();
+  </script>
+</body>
+</html>

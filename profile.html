@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-background">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Settings — KRNLSec</title>
+  <meta name="description" content="Manage your KRNLSec profile, change your password, configure email preferences, toggle theme colors, and view billing invoices." />
+  <meta name="theme-color" content="#090909" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body>
+  
+  <div class="app-shell">
+    <!-- Sidebar navigation panel -->
+    <aside class="sidebar" id="sidebar">
+      <a href="index.html" class="brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 8 8 11 4.5-3 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
+        KRNL<b>Sec</b>
+      </a>
+      
+      <nav class="side-nav" aria-label="Dashboard navigation">
+        <span class="label">Academy</span>
+        <a href="dashboard.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          Dashboard
+        </a>
+        <a href="courses.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+          My Courses
+        </a>
+        <a href="lesson.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m23 7-7 5 7 5V7Z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          Continue Learning
+        </a>
+        <a href="dashboard.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>
+          Downloads
+        </a>
+        
+        <span class="label">Account</span>
+        <a href="profile.html" class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profile
+        </a>
+        <a href="profile.html#settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+          Settings
+        </a>
+      </nav>
+      
+      <div class="side-foot">
+        <a href="#" id="sidebarLogout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></svg>
+          Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main main space -->
+    <main class="app-main">
+      <div class="topbar">
+        <button class="icon-btn menu-open-btn" id="menuOpenBtn" title="Open Menu" aria-label="Open sidebar"></button>
+        
+        <div class="search" style="visibility:hidden">
+          <input type="search" placeholder="Search..." disabled />
+        </div>
+        
+        <div class="topbar-actions">
+          <a href="pricing.html" class="btn btn-outline btn-sm">Upgrade Plan</a>
+          <button class="icon-btn" id="notifBtn" aria-label="Announcements" title="Announcements"></button>
+          <a href="profile.html" class="avatar-sm" id="userAvatar" title="My Profile" style="text-decoration:none">US</a>
+        </div>
+      </div>
+
+      <div class="app-content">
+        <!-- Profile info banner -->
+        <div class="profile-header glass reveal">
+          <div class="profile-avatar" id="profAvatar">US</div>
+          <div>
+            <h1 id="profileNameHeading" style="color:#fff">Loading user...</h1>
+            <p class="email" id="profileEmailHeading">loading...</p>
+            <span class="badge" style="margin-top:8px">KRNLSec Student</span>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs reveal">
+          <button class="active" data-tab="profile">Profile Details</button>
+          <button data-tab="password">Security & Password</button>
+          <button data-tab="settings">System Preferences</button>
+          <button data-tab="billing">Invoices & Billing</button>
+        </div>
+
+        <!-- Panel 1: Profile forms -->
+        <section class="tab-panel active" data-panel="profile">
+          <div class="panel glass reveal" style="max-width:680px">
+            <h2 style="margin-bottom:14px; font-size:1.2rem; color:#fff">Update Credentials</h2>
+            <form id="profileUpdateForm" class="loginForm" novalidate>
+              <div class="field">
+                <label for="profName">Full Name</label>
+                <div class="control">
+                  <input type="text" id="profName" required placeholder="Marcus Vale" style="padding:11px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); color:#fff; width:100%" />
+                </div>
+              </div>
+              <div class="field" style="margin-top:14px">
+                <label for="profEmail">Email Address</label>
+                <div class="control">
+                  <input type="email" id="profEmail" required placeholder="marcus@krnlsec.io" style="padding:11px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); color:#fff; width:100%" />
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-top:20px">Save Changes</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Panel 2: Password settings -->
+        <section class="tab-panel" data-panel="password">
+          <div class="panel glass reveal" style="max-width:680px">
+            <h2 style="margin-bottom:14px; font-size:1.2rem; color:#fff">Change Password</h2>
+            <form id="passUpdateForm" novalidate>
+              <div class="field">
+                <label for="curPass">Current Password</label>
+                <div class="control">
+                  <input type="password" id="curPass" required placeholder="Enter old password" style="padding:11px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); color:#fff; width:100%" />
+                </div>
+              </div>
+              <div class="field" style="margin-top:14px">
+                <label for="newPass">New Password</label>
+                <div class="control">
+                  <input type="password" id="newPass" required placeholder="Enter 8+ strong characters" style="padding:11px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); color:#fff; width:100%" />
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" style="margin-top:20px">Update Password</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Panel 3: Preferences settings toggles -->
+        <section class="tab-panel" data-panel="settings">
+          <div class="panel glass reveal" style="max-width: 680px">
+            <h2 style="margin-bottom:20px; font-size:1.2rem; color:#fff">Academy Settings</h2>
+            
+            <div class="setting-row">
+              <div class="txt">
+                <h4 style="color:#fff">Light Theme Mode</h4>
+                <p>Change your learning workspace to use our light-mode palette.</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="themeSwitch" />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="txt">
+                <h4 style="color:#fff">Email Newsletters</h4>
+                <p>Receive notifications when security instructors release new courses or cheatsheets.</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="txt">
+                <h4 style="color:#fff">Auto-Shutdown Labs</h4>
+                <p>Automatically turn off running VM sandboxes if inactive for 45 minutes to save resources.</p>
+              </div>
+              <label class="switch">
+                <input type="checkbox" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Panel 4: Billing history -->
+        <section class="tab-panel" data-panel="billing">
+          <div class="panel glass reveal">
+            <h2 style="margin-bottom:14px; font-size:1.2rem; color:#fff">Mock Billing Receipts</h2>
+            <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:20px">This list records simulated payments successfully sent to our checkout simulator.</p>
+            
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr>
+                    <th>Invoice ID</th>
+                    <th>Billing Date</th>
+                    <th>Payment Item</th>
+                    <th>Amount Paid</th>
+                    <th>Billing Status</th>
+                  </tr>
+                </thead>
+                <tbody id="billingList">
+                  <!-- JS Injected Invoices receipts -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
