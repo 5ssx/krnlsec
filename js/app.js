@@ -251,7 +251,7 @@
       mobileActionsHTML = `
         <a href="dashboard.html" class="btn btn-ghost btn-block">Dashboard</a>
         <a href="profile.html" class="btn btn-outline btn-block">Profile</a>
-        <button id="mobileLogoutBtn" class="btn btn-primary btn-block">Log Out</button>
+        <button id="mobileLogoutBtn" class="btn btn-outline" style="margin-top: 10px;">Log Out</button>
       `;
     } else {
       actionsHTML = `

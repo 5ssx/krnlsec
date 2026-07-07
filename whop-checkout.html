@@ -388,7 +388,7 @@
       });
 
       // Submit payment form
-      document.getElementById("paymentForm").addEventListener("submit", (e) => {
+      document.getElementById("paymentForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const email = document.getElementById("email").value;
@@ -446,9 +446,15 @@
           }
         }
 
-        // If user doesn't exist, create a temporary session
+        // If user doesn't exist, create a real session in the KV namespace (no cc info is saved)
         if (!window.KRNLAuth.checkSession()) {
-          store.set("user", { name: name, email: email, uid: "local_" + Math.random().toString(36).substring(2, 11), isFirebase: false });
+          try {
+            const tempPass = Math.random().toString(36).slice(-8) + "Aa1!";
+            await window.KRNLAuth.register(email, tempPass, name);
+          } catch (err) {
+            console.warn("Could not register user automatically:", err);
+            store.set("user", { name: name, email: email, uid: "local_" + Math.random().toString(36).substring(2, 11), isFirebase: false });
+          }
         }
 
         // Generate billing history entry
