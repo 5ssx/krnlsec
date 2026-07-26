@@ -784,6 +784,9 @@ img {
     width: 72px;
     height: 72px;
     margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .product-icon-bg {
@@ -796,8 +799,10 @@ img {
 
 .product-icon svg {
     position: relative;
-    padding: 16px;
+    width: 36px;
+    height: 36px;
     color: var(--primary-light);
+    z-index: 1;
 }
 
 .product-name {

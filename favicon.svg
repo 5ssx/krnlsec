@@ -1,0 +1,8 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Left Bracket -->
+    <path d="M22 14 L10 14 L10 50 L22 50" stroke="#9d4edd" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Right Bracket -->
+    <path d="M42 14 L54 14 L54 50 L42 50" stroke="#9d4edd" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Letter 'k' -->
+    <path d="M26 22 L26 42 M38 28 L26 36 M38 44 L28 35" stroke="#9d4edd" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
