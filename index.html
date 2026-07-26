@@ -1,579 +1,459 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>krnl.cc — 0xChilli</title>
-<meta name="description" content="krnl // game hacker & reverse engineer. exploit dev, malware analysis.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%23ff2d3d%22>&gt;</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0a0707;
-    --bg-alt:#120a0a;
-    --panel:#160c0d;
-    --red:#ff2d3d;
-    --red-bright:#ff5b5b;
-    --red-dim:#7a1620;
-    --red-deep:#2b0a0e;
-    --text:#dcd0d0;
-    --text-dim:#8a7373;
-    --text-faint:#513e3e;
-    --border:#2a1414;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  
-  /* Smooth scroll controlled by Lenis */
-  html.lenis, html.lenis body {
-    height: auto;
-  }
-  .lenis.lenis-smooth {
-    scroll-behavior: auto !important;
-  }
-  .lenis.lenis-smooth [data-lenis-prevent] {
-    overscroll-behavior: contain;
-  }
-  .lenis.lenis-stopped {
-    overflow: hidden;
-  }
-  .lenis.lenis-smooth iframe {
-    pointer-events: none;
-  }
-  
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:'IBM Plex Mono', monospace;
-    font-size:15px;
-    line-height:1.6;
-    overflow-x:hidden;
-  }
-  ::selection{background:var(--red-dim);color:#fff;}
-  a{color:var(--red-bright);text-decoration:none;}
-
-  /* scanline / crt overlay */
-  .crt{
-    position:fixed;inset:0;pointer-events:none;z-index:60;
-    background:repeating-linear-gradient(
-      to bottom,
-      rgba(255,45,61,0.025) 0px,
-      rgba(255,45,61,0.025) 1px,
-      transparent 1px,
-      transparent 3px
-    );
-    mix-blend-mode:overlay;
-  }
-  .vignette{
-    position:fixed;inset:0;pointer-events:none;z-index:59;
-    background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
-  }
-
-  /* boot overlay */
-  #boot{
-    position:fixed;inset:0;background:#050303;z-index:100;
-    display:flex;align-items:flex-start;justify-content:flex-start;
-    padding:8vh 6vw;
-    font-family:'IBM Plex Mono', monospace;
-    color:var(--red);
-    font-size:14px;
-    transition:opacity .6s ease, visibility .6s ease;
-  }
-  #boot.hide{opacity:0;visibility:hidden;}
-  #boot pre{white-space:pre-wrap;}
-  #boot .cursor-blink{display:inline-block;width:8px;height:14px;background:var(--red);animation:blink 1s steps(1) infinite;vertical-align:middle;margin-left:2px;}
-  @keyframes blink{50%{opacity:0;}}
-
-  main{opacity:0;transition:opacity .8s ease;position:relative;z-index:1;}
-  main.show{opacity:1;}
-
-  #rain{position:fixed;inset:0;z-index:0;opacity:.45;pointer-events:none;}
-
-  .reveal{opacity:0;transform:translateY(30px);transition:opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);}
-  .reveal.in{opacity:1;transform:translateY(0);}
-
-  /* nav */
-  nav{
-    position:fixed;top:0;left:0;right:0;z-index:50;
-    display:flex;justify-content:space-between;align-items:center;
-    padding:18px 6vw;
-    background:linear-gradient(to bottom, rgba(10,7,7,0.95), rgba(10,7,7,0));
-    font-size:13px;
-    letter-spacing:.02em;
-  }
-  nav .prompt{color:var(--red);}
-  nav .prompt .sym{color:var(--text-dim);}
-  nav ul{list-style:none;display:flex;gap:28px;}
-  nav a{color:var(--text-dim);transition:color .2s;}
-  nav a:hover{color:var(--red-bright);}
-
-  section{padding:0 6vw;}
-
-  /* hero */
-  .hero{
-    min-height:100vh;
-    display:flex;flex-direction:column;justify-content:center;
-    position:relative;
-    padding-top:60px;
-  }
-  .hero .tag{
-    color:var(--text-dim);font-size:13px;letter-spacing:.15em;text-transform:uppercase;
-    margin-bottom:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  }
-  .hero .tag::before{content:'';width:8px;height:8px;background:var(--red);border-radius:50%;box-shadow:0 0 12px var(--red);animation:pulse 2s ease-in-out infinite;}
-  .hero .tag .sep{color:var(--text-faint);}
-  .hero .tag #clock{color:var(--red-bright);letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-
-  .glitch-wrap{position:relative;}
-  .glitch{
-    font-family:'JetBrains Mono', monospace;
-    font-weight:800;
-    font-size:clamp(48px, 11vw, 130px);
-    line-height:.95;
-    color:var(--text);
-    letter-spacing:-.02em;
-    position:relative;
-    text-shadow:0 0 40px rgba(255,45,61,0.15);
-  }
-  .glitch::before, .glitch::after{
-    content:attr(data-text);
-    position:absolute;top:0;left:0;width:100%;
-    overflow:hidden;background:var(--bg);
-  }
-  .glitch::before{
-    color:var(--red);
-    animation:glitchTop 5s infinite linear alternate-reverse;
-    clip-path:inset(0 0 60% 0);
-  }
-  .glitch::after{
-    color:var(--red-bright);
-    animation:glitchBottom 4s infinite linear alternate-reverse;
-    clip-path:inset(60% 0 0 0);
-  }
-  @keyframes glitchTop{
-    0%,89%,100%{transform:translate(0,0);}
-    90%{transform:translate(-3px,-2px);}
-    92%{transform:translate(3px,1px);}
-    94%{transform:translate(-2px,2px);}
-    96%{transform:translate(2px,-1px);}
-  }
-  @keyframes glitchBottom{
-    0%,89%,100%{transform:translate(0,0);}
-    90%{transform:translate(3px,2px);}
-    92%{transform:translate(-3px,-1px);}
-    94%{transform:translate(2px,-2px);}
-    96%{transform:translate(-2px,1px);}
-  }
-  .hero .role{
-    margin-top:22px;font-size:clamp(14px,2vw,18px);color:var(--text-dim);
-    max-width:640px;
-  }
-  .hero .role .k{color:var(--red-bright);}
-  .hero .typed-line{
-    margin-top:16px;font-size:clamp(13px,1.8vw,15px);color:var(--red-bright);
-    min-height:22px;font-family:'JetBrains Mono';
-  }
-  .hero .typed-line::before{content:'$ ';color:var(--text-faint);}
-  .hero .typed-line .tcursor{display:inline-block;width:7px;height:14px;background:var(--red-bright);margin-left:2px;animation:blink 1s steps(1) infinite;vertical-align:-2px;}
-  .hero .scroll-cue{
-    position:absolute;bottom:40px;left:6vw;font-size:11px;color:var(--text-faint);
-    display:flex;align-items:center;gap:8px;letter-spacing:.1em;
-  }
-  .hero .scroll-cue .bar{width:1px;height:34px;background:linear-gradient(var(--red),transparent);animation:scrollDown 2s ease-in-out infinite;}
-  @keyframes scrollDown{0%{transform:scaleY(0);transform-origin:top;}50%{transform:scaleY(1);transform-origin:top;}51%{transform-origin:bottom;}100%{transform:scaleY(0);transform-origin:bottom;}}
-
-  /* section headers */
-  .sec-head{
-    display:flex;align-items:baseline;gap:14px;margin-bottom:36px;
-    padding-top:90px;
-  }
-  .sec-head .num{color:var(--text-faint);font-size:13px;}
-  .sec-head h2{
-    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:22px;color:var(--text);
-    text-transform:lowercase;
-  }
-  .sec-head h2 .dollar{color:var(--red);}
-  .sec-head .rule{flex:1;height:1px;background:linear-gradient(to right, var(--border), transparent);}
-
-  /* whoami / about */
-  .whoami{
-    background:var(--bg-alt);border:1px solid var(--border);border-radius:6px;
-    padding:28px 30px;max-width:820px;
-  }
-  .whoami .line{margin-bottom:10px;font-size:14px;}
-  .whoami .line .field{color:var(--text-dim);display:inline-block;min-width:110px;}
-  .whoami .line .val{color:var(--text);}
-  .whoami .line .val.accent{color:var(--red-bright);}
-  .whoami p{margin-top:16px;color:var(--text-dim);font-size:14px;max-width:640px;}
-
-  /* skills - ls -la style */
-  .skills-table{max-width:820px;}
-  .skills-table .row{
-    display:grid;grid-template-columns:90px 200px 1fr;gap:16px;
-    padding:10px 0;border-bottom:1px solid var(--border);font-size:13.5px;
-    align-items:center;
-  }
-  .skills-table .row.head{color:var(--text-faint);font-size:11px;text-transform:uppercase;letter-spacing:.08em;}
-  .skills-table .perm{color:var(--red-dim);}
-  .skills-table .name{color:var(--red-bright);font-weight:500;}
-  .skills-table .desc{color:var(--text-dim);}
-
-  /* projects */
-  .projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:1px;max-width:1100px;background:var(--border);border:1px solid var(--border);}
-  .proj{
-    background:var(--bg-alt);padding:30px 28px;transition:background .25s;position:relative;
-    display: flex;
-    flex-direction: column;
-  }
-  .proj:hover{background:var(--panel);}
-  .proj::before{
-    content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--red);
-    transform:scaleY(0);transform-origin:top;transition:transform .3s ease;
-  }
-  .proj:hover::before{transform:scaleY(1);}
-  .proj h3{transition:transform .15s;}
-  .proj:hover h3{animation:projJitter .28s steps(2);}
-  @keyframes projJitter{
-    0%{transform:translate(0,0);}
-    50%{transform:translate(1px,-1px);}
-    100%{transform:translate(0,0);}
-  }
-
-  .stats{display:flex;gap:28px;flex-wrap:wrap;max-width:820px;margin-top:18px;padding-top:18px;border-top:1px dashed var(--border);}
-  .stats .stat{font-size:12px;color:var(--text-dim);}
-  .stats .stat b{display:block;color:var(--red-bright);font-size:18px;font-family:'JetBrains Mono';font-weight:700;margin-bottom:2px;}
-  .proj .path{color:var(--text-faint);font-size:11px;margin-bottom:12px;}
-  .proj .path::before{content:'~/projects/';color:var(--text-faint);}
-  .proj h3{font-family:'JetBrains Mono';color:var(--text);font-size:18px;margin-bottom:12px;}
-  .proj p{color:var(--text-dim);font-size:13.5px;margin-bottom:20px; flex-grow: 1;}
-  .proj .tags{display:flex;flex-wrap:wrap;gap:8px;}
-  .proj .tags span{
-    font-size:11px;color:var(--red-bright);border:1px solid var(--red-dim);
-    padding:4px 10px;border-radius:4px;background:rgba(255,45,61,0.05);
-  }
-
-  /* socials */
-  .socials{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:900px;}
-  .social-card{
-    border:1px solid var(--border);border-radius:6px;padding:22px 22px;
-    background:var(--bg-alt);position:relative;overflow:hidden;transition:border-color .25s, transform .25s;
-    display:block;
-  }
-  .social-card:hover{border-color:var(--red-dim);transform:translateY(-2px);}
-  .social-card .cmd{color:var(--text-faint);font-size:11px;margin-bottom:14px;}
-  .social-card .cmd .sym{color:var(--red);}
-  .social-card .platform{color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
-  .social-card .handle{color:var(--text);font-size:20px;font-weight:700;font-family:'JetBrains Mono';}
-  .social-card .handle .at{color:var(--red-bright);}
-  .social-card .arrow{position:absolute;top:20px;right:20px;color:var(--text-faint);font-size:14px;transition:transform .25s, color .25s;}
-  .social-card:hover .arrow{transform:translate(3px,-3px);color:var(--red-bright);}
-
-  footer{
-    margin-top:120px;padding:40px 6vw 50px;border-top:1px solid var(--border);
-    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
-    color:var(--text-faint);font-size:12px;
-  }
-  footer .sig{color:var(--text-dim);}
-  footer .sig .r{color:var(--red);}
-
-  @media (max-width:640px){
-    nav ul{gap:16px;}
-    .skills-table .row{grid-template-columns:60px 1fr;}
-    .skills-table .desc{grid-column:1/-1;padding-top:2px;}
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="krnl.cc — Premium Roblox tools, external cheats, and digital products. Portfolio and store by krnl.">
+    <title>krnl.cc — Portfolio & Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="boot">
-  <pre id="boot-text"></pre>
-</div>
+    <!-- Animated background particles -->
+    <div class="bg-particles" id="particles"></div>
 
-<canvas id="rain"></canvas>
-<div class="crt"></div>
-<div class="vignette"></div>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <span class="logo-bracket">[</span> krnl<span class="logo-dot">.</span>cc <span class="logo-bracket">]</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#hero" class="nav-link active">Home</a></li>
+                <li><a href="#about" class="nav-link">Who Am I</a></li>
+                <li><a href="#products" class="nav-link">Products</a></li>
+                <li><a href="#discord" class="nav-link">Discord</a></li>
+                <li><a href="#socials" class="nav-link">Socials</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
 
-<main id="main">
-  <nav>
-    <div class="prompt">krnl<span class="sym">@</span>cc<span class="sym">:~$</span></div>
-    <ul>
-      <li><a href="#about">about</a></li>
-      <li><a href="#skills">skills</a></li>
-      <li><a href="#projects">projects</a></li>
-      <li><a href="#socials">socials</a></li>
-    </ul>
-  </nav>
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                Available for Projects
+            </div>
+            <h1 class="hero-title">
+                <span class="title-line">Welcome to</span>
+                <span class="title-accent">krnl<span class="accent-dot">.</span>cc</span>
+            </h1>
+            <p class="hero-subtitle">Developer • Creator • Innovator</p>
+            <p class="hero-description">
+                Building premium tools and digital products. Explore my work, grab my products, or connect with the community.
+            </p>
+            <div class="hero-actions">
+                <a href="#products" class="btn btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    View Products
+                </a>
+                <a href="#about" class="btn btn-ghost">
+                    Learn More
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value" data-count="500">0</span><span class="stat-suffix">+</span>
+                    <span class="stat-label">Customers</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value" data-count="99">0</span><span class="stat-suffix">%</span>
+                    <span class="stat-label">Uptime</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <span class="stat-value" data-count="24">0</span><span class="stat-suffix">/7</span>
+                    <span class="stat-label">Support</span>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="scroll-line"></div>
+            <span>Scroll</span>
+        </div>
+    </section>
 
-  <section class="hero">
-    <div class="tag">system online <span class="sep">//</span> krnl.cc <span class="sep">//</span> <span id="clock">--:--:--</span></div>
-    <div class="glitch-wrap">
-      <h1 class="glitch" data-text="0xChilli">0xChilli</h1>
+    <!-- Who Am I Section -->
+    <section class="section about" id="about">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-tag">// about</span>
+                <h2 class="section-title">Who Am <span class="highlight">I</span></h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="about-grid">
+                <div class="about-card about-main">
+                    <div class="card-glow"></div>
+                    <div class="about-avatar">
+                        <div class="avatar-ring"></div>
+                        <div class="avatar-inner">
+                            <span class="avatar-text">K</span>
+                        </div>
+                    </div>
+                    <h3 class="about-name">krnl</h3>
+                    <p class="about-handle">@krnl.cc</p>
+                    <p class="about-bio">
+                        I'm a passionate developer and content creator specializing in building premium software tools and digital products. 
+                        I focus on delivering high-quality, undetected solutions with top-tier performance and reliability.
+                    </p>
+                    <div class="about-tags">
+                        <span class="tag">Developer</span>
+                        <span class="tag">Creator</span>
+                        <span class="tag">Entrepreneur</span>
+                    </div>
+                </div>
+                <div class="about-side">
+                    <div class="about-card about-detail">
+                        <div class="card-glow"></div>
+                        <div class="detail-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        </div>
+                        <h4>Fast & Reliable</h4>
+                        <p>All products are optimized for speed and built to last with constant updates.</p>
+                    </div>
+                    <div class="about-card about-detail">
+                        <div class="card-glow"></div>
+                        <div class="detail-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <h4>Secure & Undetected</h4>
+                        <p>Security-first approach. All tools are thoroughly tested for safety and stealth.</p>
+                    </div>
+                    <div class="about-card about-detail">
+                        <div class="card-glow"></div>
+                        <div class="detail-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <h4>Community Driven</h4>
+                        <p>Join a growing community of users. Get support, updates, and exclusive content.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="section products" id="products">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-tag">// store</span>
+                <h2 class="section-title">Our <span class="highlight">Products</span></h2>
+                <div class="section-line"></div>
+                <p class="section-desc">Premium tools crafted for performance. One-time purchase, lifetime updates.</p>
+            </div>
+            <div class="products-grid">
+                <div class="product-card featured" id="product-roblox-external">
+                    <div class="product-glow"></div>
+                    <div class="product-badge">🔥 Popular</div>
+                    <div class="product-icon">
+                        <div class="product-icon-bg"></div>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
+                            <path d="M7 8l3 3-3 3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="13" y1="14" x2="17" y2="14" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="product-name">Roblox External</h3>
+                    <p class="product-desc">
+                        Premium external tool for Roblox. Undetected, fast, and constantly updated. 
+                        Includes all features with lifetime access and free updates.
+                    </p>
+                    <ul class="product-features">
+                        <li>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            External & Undetected
+                        </li>
+                        <li>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            Lifetime Access
+                        </li>
+                        <li>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            Free Updates
+                        </li>
+                        <li>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            24/7 Support via Discord
+                        </li>
+                    </ul>
+                    <div class="product-price-row">
+                        <div class="product-price">
+                            <span class="price-currency">$</span>
+                            <span class="price-value">3</span>
+                            <span class="price-cents">.99</span>
+                        </div>
+                        <span class="price-type">one-time</span>
+                    </div>
+                    <a href="https://whop.com/krnlsec/roblox-external/" target="_blank" class="btn btn-primary btn-buy" id="buyBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        Purchase Now
+                    </a>
+                    <p class="product-note">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        After purchase, open a ticket in Discord with your Order ID
+                    </p>
+                </div>
+
+                <!-- Coming Soon Card -->
+                <div class="product-card coming-soon">
+                    <div class="product-glow"></div>
+                    <div class="product-badge soon-badge">Coming Soon</div>
+                    <div class="product-icon">
+                        <div class="product-icon-bg"></div>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </div>
+                    <h3 class="product-name">More Products</h3>
+                    <p class="product-desc">
+                        Stay tuned for more premium tools and products. Join our Discord to get notified when new products drop.
+                    </p>
+                    <a href="https://discord.gg/FG6fkDcG2h" target="_blank" class="btn btn-ghost btn-buy">
+                        Join Discord for Updates
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="section how-it-works" id="how-it-works">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-tag">// process</span>
+                <h2 class="section-title">How It <span class="highlight">Works</span></h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">01</div>
+                    <div class="step-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    </div>
+                    <h4>Purchase</h4>
+                    <p>Click "Purchase Now" and complete payment securely through Whop.</p>
+                </div>
+                <div class="step-connector">
+                    <svg width="40" height="16" viewBox="0 0 40 16"><path d="M0 8h32M28 2l8 6-8 6" fill="none" stroke="currentColor" stroke-width="2" opacity="0.3"/></svg>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">02</div>
+                    <div class="step-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    </div>
+                    <h4>Get Order ID</h4>
+                    <p>After payment, you'll be redirected back with your unique encrypted Order ID.</p>
+                </div>
+                <div class="step-connector">
+                    <svg width="40" height="16" viewBox="0 0 40 16"><path d="M0 8h32M28 2l8 6-8 6" fill="none" stroke="currentColor" stroke-width="2" opacity="0.3"/></svg>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">03</div>
+                    <div class="step-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <h4>Open Ticket</h4>
+                    <p>Join our Discord, open a ticket, and provide your Order ID to receive the product.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Discord Section -->
+    <section class="section discord-section" id="discord">
+        <div class="section-container">
+            <div class="discord-card">
+                <div class="discord-glow"></div>
+                <div class="discord-content">
+                    <div class="discord-icon-wrap">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+                        </svg>
+                    </div>
+                    <h2 class="discord-title">Join the Community</h2>
+                    <p class="discord-desc">
+                        Connect with other users, get support, receive updates, and be the first to know about new product drops. 
+                        Our Discord is the hub for everything krnl.cc.
+                    </p>
+                    <div class="discord-stats">
+                        <div class="d-stat">
+                            <span class="d-stat-dot online"></span>
+                            <span>Active Community</span>
+                        </div>
+                        <div class="d-stat">
+                            <span class="d-stat-dot"></span>
+                            <span>24/7 Support</span>
+                        </div>
+                        <div class="d-stat">
+                            <span class="d-stat-dot online"></span>
+                            <span>Exclusive Updates</span>
+                        </div>
+                    </div>
+                    <a href="https://discord.gg/FG6fkDcG2h" target="_blank" class="btn btn-discord">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+                        </svg>
+                        Join Discord Server
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Socials Section -->
+    <section class="section socials" id="socials">
+        <div class="section-container">
+            <div class="section-header">
+                <span class="section-tag">// connect</span>
+                <h2 class="section-title">My <span class="highlight">Socials</span></h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="socials-grid">
+                <!-- TikTok -->
+                <a href="https://www.tiktok.com/@53.0" target="_blank" class="social-card" id="social-tiktok">
+                    <div class="social-glow"></div>
+                    <div class="social-icon tiktok">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.72a8.19 8.19 0 0 0 4.76 1.52V6.79a4.83 4.83 0 0 1-1-.1z"/>
+                        </svg>
+                    </div>
+                    <div class="social-info">
+                        <h4>TikTok</h4>
+                        <p>@53.0</p>
+                    </div>
+                    <div class="social-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l9.2-9.2M17 17V7.8H7.8"/></svg>
+                    </div>
+                </a>
+                <!-- YouTube -->
+                <a href="https://www.youtube.com/@ojct" target="_blank" class="social-card" id="social-youtube">
+                    <div class="social-glow"></div>
+                    <div class="social-icon youtube">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                    </div>
+                    <div class="social-info">
+                        <h4>YouTube</h4>
+                        <p>@ojct</p>
+                    </div>
+                    <div class="social-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l9.2-9.2M17 17V7.8H7.8"/></svg>
+                    </div>
+                </a>
+                <!-- Instagram -->
+                <a href="https://www.instagram.com/dp4e" target="_blank" class="social-card" id="social-instagram">
+                    <div class="social-glow"></div>
+                    <div class="social-icon instagram">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                            <circle cx="12" cy="12" r="5"/>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                        </svg>
+                    </div>
+                    <div class="social-info">
+                        <h4>Instagram</h4>
+                        <p>@dp4e</p>
+                    </div>
+                    <div class="social-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l9.2-9.2M17 17V7.8H7.8"/></svg>
+                    </div>
+                </a>
+                <!-- Discord -->
+                <a href="https://discord.gg/FG6fkDcG2h" target="_blank" class="social-card" id="social-discord">
+                    <div class="social-glow"></div>
+                    <div class="social-icon discord">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+                        </svg>
+                    </div>
+                    <div class="social-info">
+                        <h4>Discord</h4>
+                        <p>Join Server</p>
+                    </div>
+                    <div class="social-arrow">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17l9.2-9.2M17 17V7.8H7.8"/></svg>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <span class="nav-logo">
+                        <span class="logo-bracket">[</span> krnl<span class="logo-dot">.</span>cc <span class="logo-bracket">]</span>
+                    </span>
+                    <p>Premium tools & digital products.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#hero">Home</a>
+                    <a href="#about">About</a>
+                    <a href="#products">Products</a>
+                    <a href="#discord">Discord</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 krnl.cc — All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Order ID Modal -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal">
+            <div class="modal-glow"></div>
+            <button class="modal-close" id="modalClose" onclick="closeModal()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="modal-icon success">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h3>Payment Successful! 🎉</h3>
+            <p>Thank you for your purchase. Here is your Order ID:</p>
+            <div class="order-id-box">
+                <code id="orderIdDisplay">KRNL-XXXXXX</code>
+                <button class="copy-btn" onclick="copyOrderId()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span>Copy</span>
+                </button>
+            </div>
+            <div class="modal-steps">
+                <p><strong>Next Steps:</strong></p>
+                <ol>
+                    <li>Copy your Order ID above</li>
+                    <li>Join our <a href="https://discord.gg/FG6fkDcG2h" target="_blank">Discord Server</a></li>
+                    <li>Open a ticket in the #tickets channel</li>
+                    <li>Provide your Order ID to receive the product</li>
+                </ol>
+            </div>
+            <a href="https://discord.gg/FG6fkDcG2h" target="_blank" class="btn btn-discord modal-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+                </svg>
+                Open Discord & Create Ticket
+            </a>
+        </div>
     </div>
-    <p class="role">game hacker <span class="k">//</span> reverse engineer <span class="k">//</span> exploit dev. i take binaries apart to see what they're hiding, and put game clients under the microscope.</p>
-    <div class="typed-line"><span id="typed"></span><span class="tcursor"></span></div>
-    <div class="scroll-cue"><div class="bar"></div>scroll</div>
-  </section>
 
-  <section id="about">
-    <div class="sec-head"><span class="num">01</span><h2><span class="dollar">$</span> whoami</h2><div class="rule"></div></div>
-    <div class="whoami reveal">
-      <div class="line"><span class="field">alias</span><span class="val accent">0xChilli / krnl</span></div>
-      <div class="line"><span class="field">focus</span><span class="val">game hacking, reverse engineering, malware analysis</span></div>
-      <div class="line"><span class="field">stack</span><span class="val">python · c# · javascript · java · C++ · Go </span></div>
-      <p>I build the tools I can't find: automated network topology mappers, high-performance memory scanners, dynamic asset generators, and security layers. Comfortable pulling apart a PE file, configuring a core enterprise switch, or writing the pipeline that maps an infrastructure vulnerability from the ground up.</p>
-      <div class="stats">
-        <div class="stat"><b id="stat-uptime">00:00:00</b>session uptime</div>
-        <div class="stat"><b>124,500+</b>lines compiled</div>
-        <div class="stat"><b id="stat-root">ROOT</b>machines compromised</div>
-      </div>
-    </div>
-  </section>
-
-  <section id="skills">
-    <div class="sec-head"><span class="num">02</span><h2><span class="dollar">$</span> ls -la ~/skills</h2><div class="rule"></div></div>
-    <div class="skills-table reveal">
-      <div class="row head"><span>perm</span><span>name</span><span>desc</span></div>
-      <div class="row"><span class="perm">rwxr-x</span><span class="name">network-engineering</span><span class="desc">Cisco switch automation, topology mapping, VLAN routing & protocol analysis</span></div>
-      <div class="row"><span class="perm">rwxr-x</span><span class="name">reverse-engineering</span><span class="desc">PE analysis, deobfuscation, .pyc/binary decompilation</span></div>
-      <div class="row"><span class="perm">rwxr-x</span><span class="name">c-sharp-development</span><span class="desc">High-performance Windows tooling, runtime memory manipulation, GUI pipelines</span></div>
-      <div class="row"><span class="perm">rwxr-x</span><span class="name">graphics-automation</span><span class="desc">Programmatic stream asset generation, dynamic overlays, canvas rendering via JS/HTML</span></div>
-      <div class="row"><span class="perm">rwxr-x</span><span class="name">exploit-dev</span><span class="desc">web app & infra CVEs, privesc chains, credential pivoting</span></div>
-      <div class="row"><span class="perm">rwxr-x</span><span class="name">python-automation</span><span class="desc">Discord bots, rapid recon pipelines, data mapping & anomaly detection engines</span></div>
-    </div>
-  </section>
-
-  <section id="projects">
-    <div class="sec-head"><span class="num">03</span><h2><span class="dollar">$</span> cat projects.log</h2><div class="rule"></div></div>
-    <div class="projects reveal">
-      <div class="proj">
-        <div class="path">cisco-automator</div>
-        <h3>NetTopo-Forge</h3>
-        <p>Enterprise-grade Python automation suite for Cisco switches. Automatically maps physical topologies, provisions VLANs, configures STP parameters, and audits running configs against security baselines.</p>
-        <div class="tags"><span>python</span><span>cisco</span><span>network engineering</span></div>
-      </div>
-      <div class="proj">
-        <div class="path">sharp-injector</div>
-        <h3>SharpMemory Suite</h3>
-        <p>A robust C# toolkit built for game hacking and reverse engineering. Features multi-level pointer scanning, runtime memory patching, and dynamic thread hijacking without triggering user-mode hooks.</p>
-        <div class="tags"><span>c#</span><span>game hacking</span><span>memory analysis</span></div>
-      </div>
-      <div class="proj">
-        <div class="path">asset-architect</div>
-        <h3>StreamAsset Pipeline</h3>
-        <p>Automated JavaScript/HTML web engine built for community managers. Batch-generates highly customized Discord server logos, stream banners, and dynamic overlays based on integrated API triggers.</p>
-        <div class="tags"><span>javascript</span><span>html</span><span>graphics automation</span></div>
-      </div>
-      <div class="proj">
-        <div class="path">edu-path-engine</div>
-        <h3>Vision 2030 EduTracker</h3>
-        <p>A predictive data analytics engine mapping out higher education trajectories. Ingests university admission data to generate optimized multi-year academic progression models up to the 2030 graduation cohort.</p>
-        <div class="tags"><span>data analysis</span><span>python</span><span>modeling</span></div>
-      </div>
-      <div class="proj">
-        <div class="path">threat-intel-c2</div>
-        <h3>Neural-C2 Anomaly Detector</h3>
-        <p>Python-driven threat hunting platform that ingests live network packet captures to flag anomalous behaviors, credential pivoting attempts, and brute-force patterns utilizing baseline entropy scoring.</p>
-        <div class="tags"><span>python</span><span>cybersecurity</span><span>forensics</span></div>
-      </div>
-      <div class="proj">
-        <div class="path">usr-ledger</div>
-        <h3>Digital Escrow Protocol</h3>
-        <p>Automated marketplace dispute resolution framework. Parses live transaction logs and chat histories to construct verifiable, tamper-proof timelines for secure digital asset and account transfers.</p>
-        <div class="tags"><span>c#</span><span>automation</span><span>security</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="socials">
-    <div class="sec-head"><span class="num">04</span><h2><span class="dollar">$</span> connect --all</h2><div class="rule"></div></div>
-    <div class="socials reveal">
-      <a class="social-card" href="https://instagram.com/dp4e" target="_blank" rel="noopener">
-        <div class="cmd"><span class="sym">&gt;</span> ping instagram</div>
-        <div class="platform">Instagram</div>
-        <div class="handle"><span class="at">@</span>dp4e</div>
-        <div class="arrow">↗</div>
-      </a>
-      <a class="social-card" href="https://www.tiktok.com/@53.0" target="_blank" rel="noopener">
-        <div class="cmd"><span class="sym">&gt;</span> curl tiktok</div>
-        <div class="platform">TikTok</div>
-        <div class="handle"><span class="at">@</span>53.0</div>
-        <div class="arrow">↗</div>
-      </a>
-      <a class="social-card" href="https://www.youtube.com/@ojct" target="_blank" rel="noopener">
-        <div class="cmd"><span class="sym">&gt;</span> ssh youtube</div>
-        <div class="platform">YouTube</div>
-        <div class="handle"><span class="at">@</span>ojct</div>
-        <div class="arrow">↗</div>
-      </a>
-    </div>
-  </section>
-
-  <footer>
-    <div class="sig">krnl<span class="r">.</span>cc <span class="r">//</span> © 2026</div>
-    <div>process exited with code <span style="color:var(--red-bright)">0</span></div>
-  </footer>
-</main>
-
-<!-- Smooth Scrolling via Lenis -->
-<script src="https://unpkg.com/@studio-freight/lenis@1.0.39/dist/lenis.min.js"></script>
-<script>
-  // Initialize Lenis for premium smooth scrolling
-  const lenis = new Lenis({
-    duration: 1.2,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    smooth: true,
-    smoothTouch: false,
-  });
-
-  function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-  }
-  requestAnimationFrame(raf);
-  
-  // Tie Lenis scroll to nav links
-  document.querySelectorAll('nav a').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute('href'));
-      lenis.scrollTo(target);
-    });
-  });
-
-  const bootLines = [
-    "booting krnl.cc ...",
-    "loading modules: recon, re, exploit-dev [ OK ]",
-    "mounting ~/projects ...",
-    "decrypting profile.bin ...",
-    "user: 0xChilli",
-    "access granted."
-  ];
-  const bootEl = document.getElementById('boot-text');
-  const bootOverlay = document.getElementById('boot');
-  const mainEl = document.getElementById('main');
-
-  let li = 0, ci = 0, out = "";
-  function typeBoot(){
-    if(li >= bootLines.length){
-      setTimeout(()=>{
-        bootOverlay.classList.add('hide');
-        mainEl.classList.add('show');
-      }, 350);
-      return;
-    }
-    const line = bootLines[li];
-    if(ci <= line.length){
-      out = bootLines.slice(0, li).join('\n') + (li>0 ? '\n' : '') + line.slice(0, ci);
-      bootEl.innerHTML = out + '<span class="cursor-blink"></span>';
-      ci++;
-      setTimeout(typeBoot, 14 + Math.random()*18);
-    } else {
-      li++; ci = 0;
-      setTimeout(typeBoot, 120);
-    }
-  }
-  typeBoot();
-
-  // safety: never trap user if JS stalls
-  setTimeout(()=>{
-    bootOverlay.classList.add('hide');
-    mainEl.classList.add('show');
-  }, 4000);
-
-  /* ---- matrix-style rain, red-tinted ---- */
-  (function(){
-    const canvas = document.getElementById('rain');
-    const ctx = canvas.getContext('2d');
-    let w, h, cols, drops;
-    const glyphs = "01krnlKRNL{}<>/\\;:$#0xCHILLI".split('');
-
-    function resize(){
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-      cols = Math.floor(w / 18);
-      drops = new Array(cols).fill(0).map(()=> Math.random() * -100);
-    }
-    window.addEventListener('resize', resize);
-    resize();
-
-    function draw(){
-      ctx.fillStyle = 'rgba(10,7,7,0.14)';
-      ctx.fillRect(0,0,w,h);
-      ctx.font = '14px JetBrains Mono, monospace';
-      for(let i=0;i<cols;i++){
-        const text = glyphs[Math.floor(Math.random()*glyphs.length)];
-        const x = i*18;
-        const y = drops[i]*18;
-        const grad = Math.random();
-        ctx.fillStyle = grad > 0.96 ? '#ff8a8a' : (grad > 0.8 ? '#ff2d3d' : 'rgba(122,22,32,0.55)');
-        ctx.fillText(text, x, y);
-        if(y > h && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-      }
-    }
-    setInterval(draw, 55);
-  })();
-
-  /* ---- live clock ---- */
-  const clockEl = document.getElementById('clock');
-  function tickClock(){
-    const d = new Date();
-    clockEl.textContent = d.toTimeString().slice(0,8);
-  }
-  tickClock();
-  setInterval(tickClock, 1000);
-
-  /* ---- session uptime ---- */
-  const uptimeEl = document.getElementById('stat-uptime');
-  const startTime = Date.now();
-  function tickUptime(){
-    const s = Math.floor((Date.now()-startTime)/1000);
-    const hh = String(Math.floor(s/3600)).padStart(2,'0');
-    const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
-    const ss = String(s%60).padStart(2,'0');
-    if(uptimeEl) uptimeEl.textContent = `${hh}:${mm}:${ss}`;
-  }
-  setInterval(tickUptime, 1000);
-
-  /* ---- rotating typed line ---- */
-  const phrases = [
-    "automating cisco topology layers...",
-    "patching process memory with C#...",
-    "generating community graphics engines...",
-    "mapping multi-year analytic models...",
-    "auditing transaction ledgers..."
-  ];
-  const typedEl = document.getElementById('typed');
-  let pIdx = 0, cIdx = 0, deleting = false;
-  function typeLoop(){
-    const phrase = phrases[pIdx];
-    if(!deleting){
-      cIdx++;
-      typedEl.textContent = phrase.slice(0, cIdx);
-      if(cIdx === phrase.length){ deleting = true; setTimeout(typeLoop, 1400); return; }
-    } else {
-      cIdx--;
-      typedEl.textContent = phrase.slice(0, cIdx);
-      if(cIdx === 0){ deleting = false; pIdx = (pIdx+1) % phrases.length; }
-    }
-    setTimeout(typeLoop, deleting ? 22 : 38);
-  }
-  setTimeout(typeLoop, 4200);
-
-  /* ---- scroll reveal ---- */
-  const revealEls = document.querySelectorAll('.reveal');
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        entry.target.classList.add('in');
-        io.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.15 });
-  revealEls.forEach(el => io.observe(el));
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
